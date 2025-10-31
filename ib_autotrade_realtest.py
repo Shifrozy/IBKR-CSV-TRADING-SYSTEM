@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 import time
 import sys
+import os
 
 # ============================================================================
 # CONFIGURATION
@@ -19,7 +20,7 @@ IB_HOST = '127.0.0.1'
 IB_PORT = 7497  # 7497 for TWS Paper, 7496 for TWS Live, 4002 for Gateway Paper
 CLIENT_ID = 1
 
-# File paths
+# File paths - will be auto-detected in the script directory
 CSV_FILE = 'Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv'
 LOG_FILE = f'trading_log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt'
 
@@ -28,22 +29,62 @@ PAPER_TRADING_ONLY = True  # Set to False only when ready for live trading
 MAX_ORDER_SIZE = 1000  # Maximum shares per order (safety limit)
 
 # ============================================================================
-# LOGGING SETUP
+# LOGGING SETUP (Windows-friendly, no Unicode characters)
 # ============================================================================
 
 def setup_logging():
     """Configure logging to both file and console"""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(LOG_FILE),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+    # Create formatters
+    file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    
+    # File handler (UTF-8 encoding for full Unicode support in log file)
+    file_handler = logging.FileHandler(LOG_FILE, encoding='utf-8')
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(logging.INFO)
+    
+    # Console handler (uses system encoding, no special characters)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(logging.INFO)
+    
+    # Configure root logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
 
 logger = setup_logging()
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def find_csv_file(csv_filename):
+    """Find CSV file in current directory or script directory"""
+    # Try current working directory
+    if os.path.exists(csv_filename):
+        return csv_filename
+    
+    # Try script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(script_dir, csv_filename)
+    if os.path.exists(csv_path):
+        return csv_path
+    
+    # List available CSV files
+    logger.error(f"CSV file not found: {csv_filename}")
+    logger.info("Looking for CSV files in current directory...")
+    
+    csv_files = [f for f in os.listdir('.') if f.endswith('.csv')]
+    if csv_files:
+        logger.info(f"Available CSV files: {', '.join(csv_files)}")
+    else:
+        logger.info("No CSV files found in current directory")
+    
+    return None
 
 # ============================================================================
 # IB CONNECTION MANAGER
@@ -63,19 +104,19 @@ class IBConnectionManager:
         try:
             logger.info(f"Connecting to IB at {self.host}:{self.port}...")
             self.ib.connect(self.host, self.port, clientId=self.client_id)
-            logger.info("✓ Successfully connected to Interactive Brokers")
+            logger.info("[SUCCESS] Connected to Interactive Brokers")
             
             # Verify paper trading mode
             if PAPER_TRADING_ONLY:
                 accounts = self.ib.managedAccounts()
                 logger.info(f"Connected accounts: {accounts}")
                 if accounts and not any('paper' in acc.lower() or 'df' in acc.lower() or 'du' in acc.lower() for acc in accounts):
-                    logger.warning("⚠ WARNING: This may not be a paper trading account!")
+                    logger.warning("[WARNING] This may not be a paper trading account!")
             
             return True
             
         except Exception as e:
-            logger.error(f"✗ Failed to connect to IB: {e}")
+            logger.error(f"[FAILED] Could not connect to IB: {e}")
             logger.error("Make sure TWS or IB Gateway is running and API connections are enabled")
             return False
     
@@ -100,17 +141,19 @@ class OrderProcessor:
     def read_orders_from_csv(self, csv_file):
         """Read and parse orders from CSV file"""
         try:
-            logger.info(f"Reading orders from CSV: {csv_file}")
-            df = pd.read_csv(csv_file)
-            logger.info(f"✓ Found {len(df)} orders in CSV")
+            # Try to find the CSV file
+            csv_path = find_csv_file(csv_file)
+            if csv_path is None:
+                return None
+            
+            logger.info(f"Reading orders from CSV: {csv_path}")
+            df = pd.read_csv(csv_path)
+            logger.info(f"[SUCCESS] Found {len(df)} orders in CSV")
             logger.info(f"Columns: {list(df.columns)}")
             return df
             
-        except FileNotFoundError:
-            logger.error(f"✗ CSV file not found: {csv_file}")
-            return None
         except Exception as e:
-            logger.error(f"✗ Error reading CSV: {e}")
+            logger.error(f"[ERROR] Error reading CSV: {e}")
             return None
     
     def create_contract(self, row):
@@ -136,7 +179,7 @@ class OrderProcessor:
             
             # Safety check
             if quantity > MAX_ORDER_SIZE:
-                logger.warning(f"⚠ Order size {quantity} exceeds MAX_ORDER_SIZE {MAX_ORDER_SIZE}")
+                logger.warning(f"[WARNING] Order size {quantity} exceeds MAX_ORDER_SIZE {MAX_ORDER_SIZE}")
                 return None
             
             # Create base order
@@ -184,13 +227,13 @@ class OrderProcessor:
             # Wait briefly for order to be acknowledged
             self.ib.sleep(1)
             
-            logger.info(f"✓ Order placed successfully - Order ID: {trade.order.orderId}")
+            logger.info(f"[SUCCESS] Order placed - Order ID: {trade.order.orderId}")
             logger.info(f"  Status: {trade.orderStatus.status}")
             
             return trade
             
         except Exception as e:
-            logger.error(f"✗ Error placing order for {symbol}: {e}")
+            logger.error(f"[ERROR] Error placing order for {symbol}: {e}")
             return None
     
     def process_all_orders(self, csv_file):
@@ -224,7 +267,7 @@ class OrderProcessor:
             # Small delay between orders
             time.sleep(0.5)
         
-        logger.info(f"\n✓ Completed processing {len(trades)}/{len(df)} orders")
+        logger.info(f"\n[COMPLETE] Processed {len(trades)}/{len(df)} orders successfully")
         return trades
 
 # ============================================================================
@@ -311,9 +354,9 @@ class AutoTradingSystem:
         logger.info("="*80)
         
         if PAPER_TRADING_ONLY:
-            logger.info("⚠ SAFETY MODE: Paper trading only")
+            logger.info("[SAFETY MODE] Paper trading only")
         else:
-            logger.warning("⚠⚠⚠ WARNING: Live trading mode enabled! ⚠⚠⚠")
+            logger.warning("[WARNING] Live trading mode enabled!")
         
         # Connect to IB
         self.connection = IBConnectionManager(IB_HOST, IB_PORT, CLIENT_ID)
@@ -356,7 +399,7 @@ class AutoTradingSystem:
             logger.info("="*80)
             
         except KeyboardInterrupt:
-            logger.info("\n⚠ Trading interrupted by user")
+            logger.info("\n[INTERRUPTED] Trading interrupted by user")
         except Exception as e:
             logger.error(f"Error during trading: {e}")
         finally:
@@ -367,7 +410,7 @@ class AutoTradingSystem:
         logger.info("\nShutting down...")
         if self.connection:
             self.connection.disconnect()
-        logger.info("✓ System shutdown complete")
+        logger.info("[COMPLETE] System shutdown complete")
 
 # ============================================================================
 # ENTRY POINT
@@ -376,12 +419,20 @@ class AutoTradingSystem:
 def main():
     """Main entry point"""
     
+    # Check if CSV file exists
+    csv_path = find_csv_file(CSV_FILE)
+    if csv_path is None:
+        print("\n[ERROR] CSV file not found. Please ensure the file is in the script directory.")
+        print(f"Looking for: {CSV_FILE}")
+        print(f"Current directory: {os.getcwd()}")
+        return
+    
     # Safety confirmation for paper trading
     print("\n" + "="*80)
     print("IB AUTO TRADING SYSTEM")
     print("="*80)
     print(f"Mode: {'PAPER TRADING' if PAPER_TRADING_ONLY else 'LIVE TRADING'}")
-    print(f"CSV File: {CSV_FILE}")
+    print(f"CSV File: {csv_path}")
     print(f"IB Connection: {IB_HOST}:{IB_PORT}")
     print("="*80)
     
