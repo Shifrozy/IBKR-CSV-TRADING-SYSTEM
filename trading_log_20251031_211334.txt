@@ -1,0 +1,60 @@
+2025-10-31 21:13:46,441 - INFO - ================================================================================
+2025-10-31 21:13:46,442 - INFO - IB AUTO TRADING SYSTEM - PAPER TRADING MODE
+2025-10-31 21:13:46,442 - INFO - ================================================================================
+2025-10-31 21:13:46,528 - INFO - Connecting to IB at 127.0.0.1:7497...
+2025-10-31 21:13:46,530 - INFO - Connecting to 127.0.0.1:7497 with clientId 1...
+2025-10-31 21:13:46,540 - INFO - Connected
+2025-10-31 21:13:46,652 - INFO - Logged on to server version 176
+2025-10-31 21:13:46,669 - INFO - API connection ready
+2025-10-31 21:13:46,690 - INFO - Warning 2104, reqId -1: Market data farm connection is OK:hfarm
+2025-10-31 21:13:46,693 - INFO - Warning 2104, reqId -1: Market data farm connection is OK:usfuture
+2025-10-31 21:13:46,693 - INFO - Warning 2104, reqId -1: Market data farm connection is OK:cashfarm
+2025-10-31 21:13:46,694 - INFO - Warning 2104, reqId -1: Market data farm connection is OK:usfarm
+2025-10-31 21:13:46,694 - INFO - Warning 2106, reqId -1: HMDS data farm connection is OK:apachmds
+2025-10-31 21:13:46,695 - INFO - Warning 2106, reqId -1: HMDS data farm connection is OK:ushmds
+2025-10-31 21:13:46,695 - INFO - Warning 2158, reqId -1: Sec-def data farm connection is OK:secdefhk
+2025-10-31 21:13:47,103 - INFO - Synchronization complete
+2025-10-31 21:13:47,125 - INFO - Connected accounts: ['DU001']
+2025-10-31 21:13:47,126 - INFO - 
+--- BEFORE TRADING ---
+2025-10-31 21:13:47,126 - INFO - 
+Fetching current positions...
+2025-10-31 21:13:47,127 - INFO - No open positions found
+2025-10-31 21:13:47,158 - INFO - Fetching account summary...
+2025-10-31 21:13:47,554 - INFO - ============================================================
+2025-10-31 21:13:47,557 - INFO - Account Summary:
+2025-10-31 21:13:47,560 - INFO -   BuyingPower: 400000.00 USD
+2025-10-31 21:13:47,561 - INFO -   GrossPositionValue: 0.00 USD
+2025-10-31 21:13:47,564 - INFO -   NetLiquidation: 100000.00 USD
+2025-10-31 21:13:47,568 - INFO -   TotalCashValue: 100000.00 USD
+2025-10-31 21:13:47,572 - INFO - ============================================================
+
+2025-10-31 21:13:47,574 - INFO - 
+--- PROCESSING ORDERS ---
+2025-10-31 21:13:47,575 - INFO - Reading orders from CSV: Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv
+2025-10-31 21:13:47,674 - WARNING - No orders to process
+2025-10-31 21:13:47,675 - INFO - 
+--- AFTER TRADING ---
+2025-10-31 21:13:47,675 - INFO - 
+Fetching current positions...
+2025-10-31 21:13:47,676 - INFO - No open positions found
+2025-10-31 21:13:47,676 - INFO - Fetching account summary...
+2025-10-31 21:13:47,678 - INFO - ============================================================
+2025-10-31 21:13:47,678 - INFO - Account Summary:
+2025-10-31 21:13:47,679 - INFO -   BuyingPower: 400000.00 USD
+2025-10-31 21:13:47,679 - INFO -   GrossPositionValue: 0.00 USD
+2025-10-31 21:13:47,680 - INFO -   NetLiquidation: 100000.00 USD
+2025-10-31 21:13:47,680 - INFO -   TotalCashValue: 100000.00 USD
+2025-10-31 21:13:47,680 - INFO - ============================================================
+
+2025-10-31 21:13:47,681 - INFO - 
+================================================================================
+2025-10-31 21:13:47,681 - INFO - TRADING SESSION SUMMARY
+2025-10-31 21:13:47,681 - INFO - Orders processed: 0
+2025-10-31 21:13:47,682 - INFO - Log file: trading_log_20251031_211334.txt
+2025-10-31 21:13:47,684 - INFO - ================================================================================
+2025-10-31 21:13:47,690 - INFO - 
+Shutting down...
+2025-10-31 21:13:47,691 - INFO - Disconnecting from 127.0.0.1:7497, 702 B sent in 9 messages, 27.1 kB received in 644 messages, session time 1.16 s.
+2025-10-31 21:13:47,691 - INFO - Disconnecting
+2025-10-31 21:13:47,694 - INFO - Disconnected from IB
