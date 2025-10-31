@@ -1,0 +1,21 @@
+How it works:
+
+Run python ib_autotrade_realtest.py.
+
+It reads your provided CSV file (symbols, side, qty, order type, limit price, etc.).
+
+The script connects automatically to IB TWS or Gateway via ib_insync.
+
+Places orders one by one and logs all activity into trading_log_YYYYMMDD.txt.
+
+Works for Stocks, ETFs, Futures, and Forex (IB permissions required for each).
+
+Requirements:
+
+Installed Python 3.10+
+
+ib_insync library (pip install ib_insync)
+
+TWS or IB Gateway running and logged in
+
+API access enabled in TWS (Configure → API → Enable ActiveX and Socket Clients)
