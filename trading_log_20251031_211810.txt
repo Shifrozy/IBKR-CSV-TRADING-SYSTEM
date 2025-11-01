@@ -1,3 +1,0 @@
-2025-10-31 21:18:10,273 - ERROR - CSV file not found: Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv
-2025-10-31 21:18:10,273 - INFO - Looking for CSV files in current directory...
-2025-10-31 21:18:10,274 - INFO - Available CSV files: Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031.csv

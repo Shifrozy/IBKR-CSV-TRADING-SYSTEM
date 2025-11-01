@@ -1,0 +1,164 @@
+2025-11-01 21:31:06,410 - INFO - 
+================================================================================
+2025-11-01 21:31:06,411 - INFO - NEW TRADING SESSION STARTED - 2025-11-01 21:31:06
+2025-11-01 21:31:06,411 - INFO - ================================================================================
+2025-11-01 21:31:06,411 - INFO - ================================================================================
+2025-11-01 21:31:06,413 - INFO - IB AUTO TRADING SYSTEM - PAPER TRADING MODE
+2025-11-01 21:31:06,413 - INFO - ================================================================================
+2025-11-01 21:31:06,413 - INFO - [SAFETY MODE] Paper trading only
+2025-11-01 21:31:06,414 - INFO - Connecting to IB at 127.0.0.1:7497...
+2025-11-01 21:31:06,582 - INFO - [SUCCESS] Connected to Interactive Brokers
+2025-11-01 21:31:06,586 - INFO - Connected accounts: ['DU002']
+2025-11-01 21:31:06,588 - INFO - 
+--- BEFORE TRADING ---
+2025-11-01 21:31:06,589 - INFO - 
+Fetching current positions...
+2025-11-01 21:31:06,590 - INFO - No open positions found
+2025-11-01 21:31:06,590 - INFO - Fetching account summary...
+2025-11-01 21:31:06,925 - INFO - ============================================================
+2025-11-01 21:31:06,929 - INFO - Account Summary:
+2025-11-01 21:31:06,931 - INFO -   BuyingPower: 400000.00 USD
+2025-11-01 21:31:06,934 - INFO -   GrossPositionValue: 0.00 USD
+2025-11-01 21:31:06,937 - INFO -   NetLiquidation: 100000.00 USD
+2025-11-01 21:31:06,937 - INFO -   TotalCashValue: 100000.00 USD
+2025-11-01 21:31:06,937 - INFO - ============================================================
+
+2025-11-01 21:31:06,938 - INFO - 
+--- PROCESSING ORDERS ---
+2025-11-01 21:31:06,938 - INFO - Reading orders from CSV: Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv
+2025-11-01 21:31:06,945 - INFO - [SUCCESS] Found 2 orders in CSV
+2025-11-01 21:31:06,952 - INFO - Columns: ['Action', 'Quantity', 'Symbol', 'SecType', 'Exchange', 'Currency', 'TimeInForce', 'GoodTilDate', 'GoodAfterTime', 'OrderType', 'LmtPrice', 'AuxPrice', 'OcaGroup', 'OrderId', 'ParentOrderId', 'BasketTag', 'Account']
+2025-11-01 21:31:06,957 - INFO - 
+Processing order 1/2...
+2025-11-01 21:31:06,967 - INFO - ============================================================
+2025-11-01 21:31:06,971 - INFO - Placing BUY order:
+2025-11-01 21:31:06,973 - INFO -   Symbol: AAPL
+2025-11-01 21:31:06,974 - INFO -   Quantity: 1
+2025-11-01 21:31:06,975 - INFO -   Order Type: MKT
+2025-11-01 21:31:06,975 - INFO - ============================================================
+2025-11-01 21:31:07,995 - INFO - [SUCCESS] Order placed - Order ID: 9
+2025-11-01 21:31:07,996 - INFO -   Status: PendingSubmit
+2025-11-01 21:31:08,507 - INFO - 
+Processing order 2/2...
+2025-11-01 21:31:08,509 - INFO - ============================================================
+2025-11-01 21:31:08,510 - INFO - Placing SELL order:
+2025-11-01 21:31:08,510 - INFO -   Symbol: IEF
+2025-11-01 21:31:08,511 - INFO -   Quantity: 1
+2025-11-01 21:31:08,511 - INFO -   Order Type: MKT
+2025-11-01 21:31:08,512 - INFO - ============================================================
+2025-11-01 21:31:09,512 - INFO - [SUCCESS] Order placed - Order ID: 10
+2025-11-01 21:31:09,513 - INFO -   Status: PreSubmitted
+2025-11-01 21:31:10,016 - INFO - 
+[COMPLETE] Processed 2/2 orders successfully
+2025-11-01 21:31:10,017 - INFO - 
+Waiting for orders to be processed...
+2025-11-01 21:31:13,018 - INFO - 
+--- AFTER TRADING ---
+2025-11-01 21:31:13,018 - INFO - 
+Fetching current positions...
+2025-11-01 21:31:13,020 - INFO - No open positions found
+2025-11-01 21:31:13,021 - INFO - Fetching account summary...
+2025-11-01 21:31:13,025 - INFO - ============================================================
+2025-11-01 21:31:13,026 - INFO - Account Summary:
+2025-11-01 21:31:13,026 - INFO -   BuyingPower: 400000.00 USD
+2025-11-01 21:31:13,027 - INFO -   GrossPositionValue: 0.00 USD
+2025-11-01 21:31:13,028 - INFO -   NetLiquidation: 100000.00 USD
+2025-11-01 21:31:13,028 - INFO -   TotalCashValue: 100000.00 USD
+2025-11-01 21:31:13,029 - INFO - ============================================================
+
+2025-11-01 21:31:13,029 - INFO - 
+================================================================================
+2025-11-01 21:31:13,030 - INFO - TRADING SESSION SUMMARY
+2025-11-01 21:31:13,031 - INFO - Orders processed: 2
+2025-11-01 21:31:13,031 - INFO - Log file: trading_log.txt
+2025-11-01 21:31:13,031 - INFO - ================================================================================
+2025-11-01 21:31:13,033 - INFO - 
+Shutting down...
+2025-11-01 21:31:13,034 - INFO - Disconnected from IB
+2025-11-01 21:31:13,041 - INFO - [COMPLETE] System shutdown complete
+2025-11-01 21:38:08,039 - INFO - 
+================================================================================
+2025-11-01 21:38:08,039 - INFO - NEW TRADING SESSION STARTED - 2025-11-01 21:38:08
+2025-11-01 21:38:08,039 - INFO - ================================================================================
+2025-11-01 21:38:08,039 - INFO - ================================================================================
+2025-11-01 21:38:08,039 - INFO - IB AUTO TRADING SYSTEM - PAPER TRADING MODE
+2025-11-01 21:38:08,041 - INFO - ================================================================================
+2025-11-01 21:38:08,042 - INFO - [SAFETY MODE] Paper trading only
+2025-11-01 21:38:08,042 - INFO - Connecting to IB at 127.0.0.1:7497...
+2025-11-01 21:38:08,170 - INFO - [SUCCESS] Connected to Interactive Brokers
+2025-11-01 21:38:08,171 - INFO - Connected accounts: ['DU002']
+2025-11-01 21:38:08,172 - INFO - Reading orders from CSV: Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv
+2025-11-01 21:38:08,182 - INFO - [SUCCESS] Found 2 orders in CSV
+2025-11-01 21:38:08,182 - INFO - Columns: ['Action', 'Quantity', 'Symbol', 'SecType', 'Exchange', 'Currency', 'TimeInForce', 'GoodTilDate', 'GoodAfterTime', 'OrderType', 'LmtPrice', 'AuxPrice', 'OcaGroup', 'OrderId', 'ParentOrderId', 'BasketTag', 'Account']
+2025-11-01 21:38:08,183 - INFO - 
+================================================================================
+2025-11-01 21:38:08,183 - INFO - TRADES TO PROCESS: 2 order(s)
+2025-11-01 21:38:08,183 - INFO - ================================================================================
+2025-11-01 21:38:08,184 - INFO -   1. BUY 1 shares of AAPL @ MKT
+2025-11-01 21:38:08,185 - INFO -   2. SELL 1 shares of IEF @ MKT
+2025-11-01 21:38:08,185 - INFO - ================================================================================
+
+2025-11-01 21:38:25,387 - INFO - 
+--- BEFORE TRADING ---
+2025-11-01 21:38:25,387 - INFO - 
+Fetching current positions...
+2025-11-01 21:38:25,388 - INFO - No open positions found
+2025-11-01 21:38:25,388 - INFO - Fetching account summary...
+2025-11-01 21:38:26,014 - INFO - ============================================================
+2025-11-01 21:38:26,016 - INFO - Account Summary:
+2025-11-01 21:38:26,016 - INFO -   BuyingPower: 400000.00 USD
+2025-11-01 21:38:26,022 - INFO -   GrossPositionValue: 0.00 USD
+2025-11-01 21:38:26,022 - INFO -   NetLiquidation: 100000.00 USD
+2025-11-01 21:38:26,022 - INFO -   TotalCashValue: 100000.00 USD
+2025-11-01 21:38:26,024 - INFO - ============================================================
+
+2025-11-01 21:38:26,024 - INFO - 
+--- PROCESSING ORDERS ---
+2025-11-01 21:38:26,025 - INFO - 
+Processing order 1/2...
+2025-11-01 21:38:26,026 - INFO - ============================================================
+2025-11-01 21:38:26,026 - INFO - Placing BUY order:
+2025-11-01 21:38:26,027 - INFO -   Symbol: AAPL
+2025-11-01 21:38:26,027 - INFO -   Quantity: 1
+2025-11-01 21:38:26,027 - INFO -   Order Type: MKT
+2025-11-01 21:38:26,027 - INFO - ============================================================
+2025-11-01 21:38:27,038 - INFO - [SUCCESS] Order placed - Order ID: 14
+2025-11-01 21:38:27,038 - INFO -   Status: PendingSubmit
+2025-11-01 21:38:27,550 - INFO - 
+Processing order 2/2...
+2025-11-01 21:38:27,551 - INFO - ============================================================
+2025-11-01 21:38:27,553 - INFO - Placing SELL order:
+2025-11-01 21:38:27,553 - INFO -   Symbol: IEF
+2025-11-01 21:38:27,554 - INFO -   Quantity: 1
+2025-11-01 21:38:27,554 - INFO -   Order Type: MKT
+2025-11-01 21:38:27,554 - INFO - ============================================================
+2025-11-01 21:38:28,563 - INFO - [SUCCESS] Order placed - Order ID: 15
+2025-11-01 21:38:28,565 - INFO -   Status: PreSubmitted
+2025-11-01 21:38:29,080 - INFO - 
+[COMPLETE] Processed 2/2 orders successfully
+2025-11-01 21:38:29,080 - INFO - 
+Waiting for orders to be processed...
+2025-11-01 21:38:32,094 - INFO - 
+--- AFTER TRADING ---
+2025-11-01 21:38:32,094 - INFO - 
+Fetching current positions...
+2025-11-01 21:38:32,094 - INFO - No open positions found
+2025-11-01 21:38:32,096 - INFO - Fetching account summary...
+2025-11-01 21:38:32,099 - INFO - ============================================================
+2025-11-01 21:38:32,100 - INFO - Account Summary:
+2025-11-01 21:38:32,100 - INFO -   BuyingPower: 400000.00 USD
+2025-11-01 21:38:32,100 - INFO -   GrossPositionValue: 0.00 USD
+2025-11-01 21:38:32,100 - INFO -   NetLiquidation: 100000.00 USD
+2025-11-01 21:38:32,100 - INFO -   TotalCashValue: 100000.00 USD
+2025-11-01 21:38:32,101 - INFO - ============================================================
+
+2025-11-01 21:38:32,101 - INFO - 
+================================================================================
+2025-11-01 21:38:32,102 - INFO - TRADING SESSION SUMMARY
+2025-11-01 21:38:32,102 - INFO - Orders processed: 2
+2025-11-01 21:38:32,102 - INFO - Log file: trading_log.txt
+2025-11-01 21:38:32,103 - INFO - ================================================================================
+2025-11-01 21:38:32,104 - INFO - 
+Shutting down...
+2025-11-01 21:38:32,108 - INFO - Disconnected from IB
+2025-11-01 21:38:32,115 - INFO - [COMPLETE] System shutdown complete

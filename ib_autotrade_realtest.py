@@ -22,7 +22,7 @@ CLIENT_ID = 1
 
 # File paths - will be auto-detected in the script directory
 CSV_FILE = 'Alg_ETF_Trading_Strategy-vol-target-2-Final_20251031 (1).csv'
-LOG_FILE = f'trading_log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt'
+LOG_FILE = 'trading_log.txt'  # Single log file that appends
 
 # Safety settings
 PAPER_TRADING_ONLY = True  # Set to False only when ready for live trading
@@ -38,8 +38,8 @@ def setup_logging():
     file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     
-    # File handler (UTF-8 encoding for full Unicode support in log file)
-    file_handler = logging.FileHandler(LOG_FILE, encoding='utf-8')
+    # File handler (UTF-8 encoding, append mode)
+    file_handler = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel(logging.INFO)
     
@@ -73,16 +73,6 @@ def find_csv_file(csv_filename):
     csv_path = os.path.join(script_dir, csv_filename)
     if os.path.exists(csv_path):
         return csv_path
-    
-    # List available CSV files
-    logger.error(f"CSV file not found: {csv_filename}")
-    logger.info("Looking for CSV files in current directory...")
-    
-    csv_files = [f for f in os.listdir('.') if f.endswith('.csv')]
-    if csv_files:
-        logger.info(f"Available CSV files: {', '.join(csv_files)}")
-    else:
-        logger.info("No CSV files found in current directory")
     
     return None
 
@@ -144,6 +134,7 @@ class OrderProcessor:
             # Try to find the CSV file
             csv_path = find_csv_file(csv_file)
             if csv_path is None:
+                logger.error(f"[ERROR] CSV file not found: {csv_file}")
                 return None
             
             logger.info(f"Reading orders from CSV: {csv_path}")
@@ -155,6 +146,32 @@ class OrderProcessor:
         except Exception as e:
             logger.error(f"[ERROR] Error reading CSV: {e}")
             return None
+    
+    def display_orders_preview(self, df):
+        """Display orders that will be processed"""
+        if df is None or df.empty:
+            logger.info("\n[NO TRADES] No trades found in CSV to process")
+            return
+        
+        logger.info(f"\n{'='*80}")
+        logger.info(f"TRADES TO PROCESS: {len(df)} order(s)")
+        logger.info(f"{'='*80}")
+        
+        for idx, row in df.iterrows():
+            action = row.get('Action', 'N/A')
+            quantity = row.get('Quantity', 'N/A')
+            symbol = row.get('Symbol', 'N/A')
+            order_type = row.get('OrderType', 'MKT')
+            
+            trade_line = f"  {idx + 1}. {action} {quantity} shares of {symbol} @ {order_type}"
+            
+            # Add limit price if available
+            if order_type == 'LMT' and pd.notna(row.get('LmtPrice')):
+                trade_line += f" (Limit: ${row.get('LmtPrice')})"
+            
+            logger.info(trade_line)
+        
+        logger.info(f"{'='*80}\n")
     
     def create_contract(self, row):
         """Create IB contract object from CSV row"""
@@ -369,7 +386,13 @@ class AutoTradingSystem:
         
         return True
     
-    def run(self, csv_file):
+    def preview_trades(self, csv_file):
+        """Preview trades before confirmation"""
+        df = self.order_processor.read_orders_from_csv(csv_file)
+        self.order_processor.display_orders_preview(df)
+        return df
+    
+    def run(self, csv_file, df):
         """Execute the trading workflow"""
         try:
             # Show current positions before trading
@@ -379,7 +402,34 @@ class AutoTradingSystem:
             
             # Process orders from CSV
             logger.info("\n--- PROCESSING ORDERS ---")
-            trades = self.order_processor.process_all_orders(csv_file)
+            
+            if df is None or df.empty:
+                logger.warning("No orders to process")
+                trades = []
+            else:
+                trades = []
+                for idx, row in df.iterrows():
+                    logger.info(f"\nProcessing order {idx + 1}/{len(df)}...")
+                    
+                    # Create contract
+                    contract = self.order_processor.create_contract(row)
+                    if contract is None:
+                        continue
+                    
+                    # Create order
+                    order = self.order_processor.create_order(row)
+                    if order is None:
+                        continue
+                    
+                    # Place order
+                    trade = self.order_processor.place_order(contract, order, row['Symbol'])
+                    if trade:
+                        trades.append(trade)
+                    
+                    # Small delay between orders
+                    time.sleep(0.5)
+                
+                logger.info(f"\n[COMPLETE] Processed {len(trades)}/{len(df)} orders successfully")
             
             # Wait for orders to be processed
             if trades:
@@ -419,35 +469,33 @@ class AutoTradingSystem:
 def main():
     """Main entry point"""
     
-    # Check if CSV file exists
-    csv_path = find_csv_file(CSV_FILE)
-    if csv_path is None:
-        print("\n[ERROR] CSV file not found. Please ensure the file is in the script directory.")
-        print(f"Looking for: {CSV_FILE}")
-        print(f"Current directory: {os.getcwd()}")
-        return
+    # Log session start
+    logger.info("\n" + "="*80)
+    logger.info(f"NEW TRADING SESSION STARTED - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("="*80)
     
-    # Safety confirmation for paper trading
-    print("\n" + "="*80)
-    print("IB AUTO TRADING SYSTEM")
-    print("="*80)
-    print(f"Mode: {'PAPER TRADING' if PAPER_TRADING_ONLY else 'LIVE TRADING'}")
-    print(f"CSV File: {csv_path}")
-    print(f"IB Connection: {IB_HOST}:{IB_PORT}")
-    print("="*80)
-    
-    response = input("\nDo you want to proceed? (yes/no): ").strip().lower()
-    if response != 'yes':
-        print("Trading cancelled by user")
-        return
-    
-    # Initialize and run system
+    # Initialize system
     system = AutoTradingSystem()
     
-    if system.initialize():
-        system.run(CSV_FILE)
-    else:
+    if not system.initialize():
         logger.error("Failed to initialize trading system")
+        return
+    
+    # Preview trades and show account info
+    df = system.preview_trades(CSV_FILE)
+    
+    # Ask for confirmation
+    print("\n" + "="*80)
+    response = input("Do you want to proceed? (yes/no): ").strip().lower()
+    print("="*80 + "\n")
+    
+    if response != 'yes':
+        logger.info("Trading cancelled by user")
+        system.shutdown()
+        return
+    
+    # Run trading
+    system.run(CSV_FILE, df)
 
 if __name__ == "__main__":
     main()
