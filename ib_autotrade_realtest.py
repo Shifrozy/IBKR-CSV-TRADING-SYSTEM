@@ -163,7 +163,14 @@ class OrderProcessor:
             symbol = row.get('Symbol', 'N/A')
             order_type = row.get('OrderType', 'MKT')
             
+            # Get current market price for the symbol
+            current_price = self.get_market_price(symbol, row.get('Exchange', 'SMART'), row.get('Currency', 'USD'))
+            
             trade_line = f"  {idx + 1}. {action} {quantity} shares of {symbol} @ {order_type}"
+            
+            # Add current market price
+            if current_price:
+                trade_line += f" (Current Price: ${current_price:.2f})"
             
             # Add limit price if available
             if order_type == 'LMT' and pd.notna(row.get('LmtPrice')):
@@ -172,6 +179,45 @@ class OrderProcessor:
             logger.info(trade_line)
         
         logger.info(f"{'='*80}\n")
+    
+    def get_market_price(self, symbol, exchange, currency):
+        """Get current market price for a symbol (uses delayed data if live not available)"""
+        try:
+            # Create contract
+            contract = Stock(
+                symbol=symbol,
+                exchange=exchange.split('/')[0] if exchange else 'SMART',
+                currency=currency if currency else 'USD'
+            )
+            
+            # Qualify the contract
+            self.ib.qualifyContracts(contract)
+            
+            # Request delayed market data (no subscription required)
+            ticker = self.ib.reqMktData(contract, '', False, False)
+            self.ib.sleep(2)  # Wait for data
+            
+            # Try to get market price
+            price = ticker.marketPrice()
+            
+            # If no market price, try last price or close
+            if not price or price <= 0:
+                if ticker.last and ticker.last > 0:
+                    price = ticker.last
+                elif ticker.close and ticker.close > 0:
+                    price = ticker.close
+            
+            # Cancel market data
+            self.ib.cancelMktData(contract)
+            
+            if price and price > 0:
+                return price
+            
+            return None
+            
+        except Exception as e:
+            logger.warning(f"Could not fetch price for {symbol}: {e}")
+            return None
     
     def create_contract(self, row):
         """Create IB contract object from CSV row"""
@@ -307,25 +353,72 @@ class PositionManager:
                 logger.info("No open positions found")
                 return []
             
-            logger.info(f"{'='*80}")
-            logger.info(f"{'Symbol':<10} {'Quantity':>10} {'Avg Cost':>12} {'Market Value':>15} {'Unrealized P&L':>15}")
-            logger.info(f"{'='*80}")
+            logger.info(f"{'='*100}")
+            logger.info(f"{'Symbol':<10} {'Quantity':>10} {'Avg Cost':>12} {'Current Price':>15} {'Market Value':>15} {'Unrealized P&L':>18}")
+            logger.info(f"{'='*100}")
             
             for pos in positions:
-                logger.info(
-                    f"{pos.contract.symbol:<10} "
-                    f"{pos.position:>10.0f} "
-                    f"${pos.avgCost:>11.2f} "
-                    f"${pos.position * pos.avgCost:>14.2f} "
-                    f"${pos.position * (pos.avgCost - pos.avgCost):>14.2f}"  # P&L calculation
-                )
+                # Get current market price
+                current_price = self.get_current_price(pos.contract)
+                
+                if current_price and current_price > 0:
+                    market_value = pos.position * current_price
+                    unrealized_pnl = pos.position * (current_price - pos.avgCost)
+                    
+                    logger.info(
+                        f"{pos.contract.symbol:<10} "
+                        f"{pos.position:>10.0f} "
+                        f"${pos.avgCost:>11.2f} "
+                        f"${current_price:>14.2f} "
+                        f"${market_value:>14.2f} "
+                        f"${unrealized_pnl:>17.2f}"
+                    )
+                else:
+                    # If price not available, use avg cost
+                    market_value = pos.position * pos.avgCost
+                    logger.info(
+                        f"{pos.contract.symbol:<10} "
+                        f"{pos.position:>10.0f} "
+                        f"${pos.avgCost:>11.2f} "
+                        f"{'N/A':>15} "
+                        f"${market_value:>14.2f} "
+                        f"{'N/A':>18}"
+                    )
             
-            logger.info(f"{'='*80}\n")
+            logger.info(f"{'='*100}\n")
             return positions
             
         except Exception as e:
             logger.error(f"Error fetching positions: {e}")
             return []
+    
+    def get_current_price(self, contract):
+        """Get current market price for a contract (uses delayed data if live not available)"""
+        try:
+            # Request delayed market data (no subscription required)
+            ticker = self.ib.reqMktData(contract, '', False, False)
+            self.ib.sleep(2)  # Wait for data
+            
+            # Try to get market price
+            price = ticker.marketPrice()
+            
+            # If no market price, try last price or close
+            if not price or price <= 0:
+                if ticker.last and ticker.last > 0:
+                    price = ticker.last
+                elif ticker.close and ticker.close > 0:
+                    price = ticker.close
+            
+            # Cancel market data
+            self.ib.cancelMktData(contract)
+            
+            if price and price > 0:
+                return price
+            
+            return None
+            
+        except Exception as e:
+            return None
     
     def fetch_account_summary(self):
         """Fetch account summary information"""
@@ -388,6 +481,11 @@ class AutoTradingSystem:
     
     def preview_trades(self, csv_file):
         """Preview trades before confirmation"""
+        # First show current positions
+        logger.info("\n--- CURRENT POSITIONS ---")
+        self.position_manager.fetch_positions()
+        
+        # Then preview upcoming trades
         df = self.order_processor.read_orders_from_csv(csv_file)
         self.order_processor.display_orders_preview(df)
         return df
@@ -395,9 +493,8 @@ class AutoTradingSystem:
     def run(self, csv_file, df):
         """Execute the trading workflow"""
         try:
-            # Show current positions before trading
-            logger.info("\n--- BEFORE TRADING ---")
-            self.position_manager.fetch_positions()
+            # Show account summary before trading
+            logger.info("\n--- ACCOUNT SUMMARY ---")
             self.position_manager.fetch_account_summary()
             
             # Process orders from CSV
